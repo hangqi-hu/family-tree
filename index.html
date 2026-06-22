@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>家族人物关系图</title>
+    <title>胡氏家族世系图</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -11,44 +11,51 @@
             font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
             background: linear-gradient(180deg, #faf6f0 0%, #f0e8d8 100%);
             min-height: 100vh;
-            overflow-x: auto;
+            overflow: auto;
         }
 
         .header {
             text-align: center;
-            padding: 32px 20px 8px;
+            padding: 40px 20px 12px;
         }
 
         .header h1 {
-            font-size: 26px;
+            font-size: 32px;
             font-weight: 700;
             color: #2c2c2c;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
         }
 
-        .header h1 span { color: #c0392b; }
+        .header h1 .accent { color: #c0392b; }
 
         .header .subtitle {
-            font-size: 13px;
+            font-size: 14px;
             color: #999;
-            margin-top: 6px;
+            margin-top: 8px;
         }
 
         /* 图例 */
         .legend-bar {
             display: flex;
             justify-content: center;
-            gap: 24px;
-            padding: 12px 20px 4px;
+            gap: 28px;
+            padding: 16px 20px 8px;
             flex-wrap: wrap;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 13px;
             color: #666;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid;
         }
 
         .legend-line {
@@ -57,29 +64,21 @@
             border-radius: 2px;
         }
 
-        .legend-line.solid { background: #c0392b; }
-        .legend-line.dashed {
-            background: repeating-linear-gradient(90deg, #8e44ad 0px, #8e44ad 5px, transparent 5px, transparent 9px);
-        }
-        .legend-line.dotted {
-            background: repeating-linear-gradient(90deg, #27ae60 0px, #27ae60 3px, transparent 3px, transparent 7px);
-        }
-
-        /* 画布 */
-        .canvas-wrapper {
-            width: 100%;
-            overflow: auto;
+        /* 主画布 */
+        .tree-container {
+            display: flex;
+            justify-content: center;
             padding: 20px 40px 60px;
+            overflow: auto;
         }
 
         svg {
             display: block;
-            margin: 0 auto;
         }
 
         /* 世代标签 */
         .gen-label {
-            font-size: 12px;
+            font-size: 13px;
             fill: #bbb;
             font-weight: 500;
             letter-spacing: 2px;
@@ -91,297 +90,267 @@
             stroke-dasharray: 6 4;
         }
 
-        /* 节点样式 */
-        .node-card {
+        /* 节点卡片 */
+        .node-group {
             cursor: pointer;
-            transition: filter 0.2s;
         }
 
-        .node-card:hover {
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+        .node-card {
+            rx: 12;
+            ry: 12;
+            stroke-width: 2.5;
+            transition: all 0.2s;
         }
 
-        .node-rect {
-            rx: 10;
-            ry: 10;
-            stroke-width: 2;
+        .node-group:hover .node-card {
+            filter: drop-shadow(0 6px 16px rgba(0,0,0,0.2));
+            stroke-width: 3;
         }
 
         .node-name {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             text-anchor: middle;
             dominant-baseline: central;
-            pointer-events: none;
         }
 
-        .node-title-text {
-            font-size: 10px;
-            fill: #999;
+        .node-gender {
+            font-size: 11px;
             text-anchor: middle;
             dominant-baseline: central;
-            pointer-events: none;
         }
 
         /* 连线 */
-        .link-line {
+        .link-parent {
             fill: none;
+            stroke: #2980b9;
             stroke-width: 2;
             opacity: 0.6;
         }
 
-        .link-label-text {
-            font-size: 10px;
+        .link-spouse {
+            stroke: #e74c3c;
+            stroke-width: 2.5;
+            opacity: 0.7;
+        }
+
+        .link-label {
+            font-size: 11px;
             fill: #888;
             text-anchor: middle;
             dominant-baseline: central;
         }
 
-        /* 高亮 */
-        .dimmed { opacity: 0.12 !important; }
-        .highlighted { opacity: 1 !important; }
-        .highlighted .link-line { stroke-width: 3 !important; opacity: 0.9 !important; }
-        .highlighted .link-label-text { fill: #333 !important; font-weight: 600 !important; opacity: 1 !important; }
+        .spouse-symbol {
+            font-size: 14px;
+            fill: #c0392b;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+
+        /* 高亮效果 */
+        .dimmed {
+            opacity: 0.15 !important;
+            transition: opacity 0.2s;
+        }
+
+        .highlighted {
+            opacity: 1 !important;
+            transition: opacity 0.2s;
+        }
 
         /* Tooltip */
         .tooltip {
             position: fixed;
             pointer-events: none;
-            background: rgba(44,44,44,0.92);
-            backdrop-filter: blur(8px);
+            background: rgba(44, 44, 44, 0.92);
+            backdrop-filter: blur(10px);
             color: #fff;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            line-height: 1.6;
-            max-width: 260px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 280px;
             opacity: 0;
             transition: opacity 0.15s;
             z-index: 200;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        .tooltip .name { font-size: 15px; font-weight: 600; }
-        .tooltip .info { color: #f1c40f; font-size: 12px; margin-top: 2px; }
-        .tooltip .rels { margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 6px; font-size: 12px; }
+        .tooltip .name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
 
-        /* 底部 */
-        .footer-tip {
+        .tooltip .info {
+            color: #f1c40f;
+            font-size: 12px;
+        }
+
+        .tooltip .rels {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 13px;
+        }
+
+        /* 底部提示 */
+        .footer {
             text-align: center;
+            padding: 16px 0 32px;
             font-size: 12px;
             color: #bbb;
-            padding: 12px 0 24px;
         }
 
-        /* 配偶连线 */
-        .spouse-line {
-            stroke: #e74c3c;
-            stroke-width: 2;
-            stroke-dasharray: none;
-            opacity: 0.5;
-        }
-
-        .spouse-symbol {
-            font-size: 11px;
+        /* 我 的标识 */
+        .me-badge {
             fill: #c0392b;
+            font-size: 10px;
             text-anchor: middle;
             dominant-baseline: central;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>红楼梦 <span>·</span> 家族世系图</h1>
-    <div class="subtitle">悬停人物查看关系 · 红色双线表示配偶</div>
+    <h1>胡氏 <span class="accent">·</span> 家族世系图</h1>
+    <div class="subtitle">以胡航琦为主线 · 悬停人物查看关系</div>
 </div>
 
 <div class="legend-bar">
-    <div class="legend-item"><div class="legend-line solid"></div>亲子/直系</div>
-    <div class="legend-item"><div class="legend-line dashed"></div>配偶</div>
-    <div class="legend-item"><div class="legend-line dotted"></div>主仆</div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background:#e8f4fd; border-color:#2980b9;"></div>
+        男性
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background:#fef0f5; border-color:#e91e63;"></div>
+        女性
+    </div>
+    <div class="legend-item">
+        <div class="legend-line" style="background:#e74c3c;"></div>
+        配偶
+    </div>
+    <div class="legend-item">
+        <div class="legend-line" style="background:#2980b9;"></div>
+        亲子
+    </div>
 </div>
 
-<div class="canvas-wrapper">
-    <svg id="chart"></svg>
+<div class="tree-container">
+    <svg id="tree"></svg>
 </div>
 
 <div class="tooltip" id="tooltip"></div>
 
-<div class="footer-tip">💡 悬停节点可高亮相关关系</div>
+<div class="footer">💡 悬停节点可查看人物详情和关系</div>
 
 <script>
 // ============================================================
-// 数据定义 - 按世代组织（可替换为你自己的人物数据）
+// 胡氏家族数据
 // ============================================================
-// generation: 第几代（0=最高辈）
-// 同代中 x 值决定左右位置
-// spousePair: 配偶对（用于画配偶连线）
 
+// 人员数据：gen=世代（0=最高辈）
 const people = [
-    // ===== 第一代 =====
-    { id: "贾母",     gen: 0, title: "史太君·贾府最高长辈",  gender: "f", branch: "荣" },
-    { id: "贾父(早逝)", gen: 0, title: "贾母之夫",            gender: "m", branch: "荣" },
+    // 第一代：爷爷奶奶
+    { id: "胡文贵", gen: 0, gender: "m", desc: "祖父" },
+    { id: "裘金娟", gen: 0, gender: "f", desc: "祖母" },
 
-    // ===== 第二代 =====
-    { id: "贾赦",     gen: 1, title: "贾母长子·袭爵",        gender: "m", branch: "荣" },
-    { id: "邢夫人",   gen: 1, title: "贾赦之妻",             gender: "f", branch: "荣" },
-    { id: "贾政",     gen: 1, title: "贾母次子·工部员外郎",   gender: "m", branch: "荣" },
-    { id: "王夫人",   gen: 1, title: "贾政之妻",             gender: "f", branch: "荣" },
-    { id: "赵姨娘",   gen: 1, title: "贾政之妾",             gender: "f", branch: "荣" },
-    { id: "贾敬",     gen: 1, title: "宁国公之孙·修道",       gender: "m", branch: "宁" },
+    // 第二代：父母 & 叔叔
+    { id: "胡香成", gen: 1, gender: "m", desc: "父亲·长子", parentId: "胡文贵" },
+    { id: "项晓飞", gen: 1, gender: "f", desc: "母亲", parentId: null },
+    { id: "胡香明", gen: 1, gender: "m", desc: "叔叔·次子", parentId: "胡文贵" },
 
-    // ===== 第三代 =====
-    { id: "贾琏",     gen: 2, title: "贾赦之子·管家",         gender: "m", branch: "荣" },
-    { id: "王熙凤",   gen: 2, title: "贾琏之妻·凤辣子",       gender: "f", branch: "荣" },
-    { id: "贾珠(早逝)", gen: 2, title: "贾政长子",             gender: "m", branch: "荣" },
-    { id: "李纨",     gen: 2, title: "贾珠之妻",             gender: "f", branch: "荣" },
-    { id: "贾宝玉",   gen: 2, title: "衔玉而生·荣府核心",     gender: "m", branch: "荣" },
-    { id: "贾环",     gen: 2, title: "赵姨娘之子",            gender: "m", branch: "荣" },
-    { id: "贾元春",   gen: 2, title: "贾政长女·贤德妃",       gender: "f", branch: "荣" },
-    { id: "贾迎春",   gen: 2, title: "贾赦之女·二木头",       gender: "f", branch: "荣" },
-    { id: "贾探春",   gen: 2, title: "赵姨娘之女·才志高远",   gender: "f", branch: "荣" },
-    { id: "贾惜春",   gen: 2, title: "贾敬孙女·善画",         gender: "f", branch: "宁" },
-    { id: "林黛玉",   gen: 2, title: "贾母外孙女·潇湘妃子",   gender: "f", branch: "外" },
-
-    // ===== 第四代 =====
-    { id: "巧姐",     gen: 3, title: "贾琏王熙凤之女",        gender: "f", branch: "荣" },
-    { id: "贾兰",     gen: 3, title: "贾珠李纨之子",          gender: "m", branch: "荣" },
+    // 第三代：我 & 堂兄弟
+    { id: "胡航琦", gen: 2, gender: "m", desc: "我·胡香成之子", parentId: "胡香成", isMe: true },
+    { id: "胡航煜", gen: 2, gender: "m", desc: "堂弟·胡香明之子", parentId: "胡香明" },
 ];
 
 // 配偶关系
-const spouseLinks = [
-    { a: "贾母",       b: "贾父(早逝)" },
-    { a: "贾赦",       b: "邢夫人" },
-    { a: "贾政",       b: "王夫人" },
-    { a: "贾琏",       b: "王熙凤" },
-    { a: "贾珠(早逝)", b: "李纨" },
+const spouses = [
+    { a: "胡文贵", b: "裘金娟" },
+    { a: "胡香成", b: "项晓飞" },
 ];
 
-// 亲子/直系关系（from → to, label 为关系描述）
-const parentLinks = [
-    // 贾母 → 第二代
-    { from: "贾母",       to: "贾赦",       label: "母子" },
-    { from: "贾母",       to: "贾政",       label: "母子" },
-    // 贾赦 → 第三代
-    { from: "贾赦",       to: "贾琏",       label: "父子" },
-    { from: "贾赦",       to: "贾迎春",     label: "父女" },
-    // 贾政 → 第三代
-    { from: "贾政",       to: "贾珠(早逝)", label: "父子" },
-    { from: "贾政",       to: "贾宝玉",     label: "父子" },
-    { from: "贾政",       to: "贾元春",     label: "父女" },
-    // 赵姨娘 → 第三代
-    { from: "赵姨娘",     to: "贾环",       label: "母子" },
-    { from: "赵姨娘",     to: "贾探春",     label: "母女" },
-    // 贾敬 → 惜春（孙女关系，但归在这一层）
-    { from: "贾敬",       to: "贾惜春",     label: "祖孙" },
-    // 贾母 → 林黛玉（外祖孙）
-    { from: "贾母",       to: "林黛玉",     label: "外祖孙" },
-    // 贾琏 & 王熙凤 → 巧姐
-    { from: "贾琏",       to: "巧姐",       label: "父女" },
-    // 贾珠 & 李纨 → 贾兰
-    { from: "贾珠(早逝)", to: "贾兰",       label: "父子" },
-];
-
-// 重要非血缘关系（宝玉为核心）
-const otherLinks = [
-    { from: "贾宝玉", to: "林黛玉",   label: "知己恋人" },
-    { from: "贾宝玉", to: "薛宝钗",   label: "金玉良缘" },
-];
-
-// 丫鬟关系
-const servantLinks = [
-    { from: "贾宝玉", to: "袭人", label: "主仆" },
-    { from: "林黛玉", to: "紫鹃", label: "主仆" },
-];
-
-// 补充人物（不在世代列表中，单独放置）
-const extraPeople = [
-    { id: "薛宝钗", gen: 2, title: "薛姨妈之女·金玉良缘", gender: "f", branch: "薛", virtualGen: true },
-    { id: "袭人",   gen: 2, title: "宝玉首席大丫鬟",       gender: "f", branch: "仆", virtualGen: true },
-    { id: "紫鹃",   gen: 2, title: "黛玉贴身丫鬟",         gender: "f", branch: "仆", virtualGen: true },
-];
+// 建立映射
+const personMap = {};
+people.forEach(p => personMap[p.id] = p);
 
 // ============================================================
 // 布局计算
 // ============================================================
-const allPeople = [...people, ...extraPeople];
-const personMap = {};
-allPeople.forEach(p => personMap[p.id] = p);
-
-// 分支颜色
-const branchColors = {
-    "荣": { bg: "#fff5f5", border: "#e74c3c", text: "#c0392b" },
-    "宁": { bg: "#f0f5ff", border: "#3498db", text: "#2471a3" },
-    "外": { bg: "#f0fff4", border: "#27ae60", text: "#1e8449" },
-    "薛": { bg: "#fffbf0", border: "#f39c12", text: "#d68910" },
-    "仆": { bg: "#f8f0ff", border: "#8e44ad", text: "#7d3c98" },
-};
-
-const genLabels = ["第一代", "第二代", "第三代", "第四代"];
+const nodeW = 130, nodeH = 60;
+const hGap = 60;       // 水平间距
+const vGap = 180;      // 垂直间距（世代间距）
+const topMargin = 80;
+const spouseGap = 20;  // 配偶之间的间距
 
 // 按世代分组
 const gens = {};
-allPeople.forEach(p => {
-    const g = p.gen;
-    if (!gens[g]) gens[g] = [];
-    gens[g].push(p);
+people.forEach(p => {
+    if (!gens[p.gen]) gens[p.gen] = [];
+    gens[p.gen].push(p);
 });
 
-// 布局参数
-const nodeW = 120, nodeH = 56;
-const hGap = 40;     // 同代水平间距
-const vGap = 160;    // 世代垂直间距
-const topMargin = 70;
-const leftMargin = 80;
+// 计算每代的 x 坐标
+// 第一代：爷爷奶奶（配偶并排）
+// 第二代：父母（配偶并排）+ 叔叔
+// 第三代：我 + 堂弟
 
-// 计算每代总宽度，居中排列
-const maxGen = Math.max(...Object.keys(gens).map(Number));
-const genY = {};
-for (let g = 0; g <= maxGen; g++) {
-    genY[g] = topMargin + g * vGap;
-}
+const centerX = 500;
 
-// 为每代的人安排 x 坐标
-const genX = {};
-for (let g = 0; g <= maxGen; g++) {
-    const members = gens[g] || [];
-    const totalW = members.length * nodeW + (members.length - 1) * hGap;
-    const startX = -totalW / 2;
-    members.forEach((p, i) => {
-        p._x = startX + i * (nodeW + hGap) + nodeW / 2;
-        p._y = genY[g];
-    });
-}
+// 第一代布局
+const gen0 = gens[0]; // 胡文贵, 裘金娟
+gen0[0]._x = centerX - nodeW/2 - spouseGap/2 - nodeW/2; // 胡文贵
+gen0[0]._y = topMargin;
+gen0[1]._x = centerX - nodeW/2 - spouseGap/2 + nodeW/2 + spouseGap; // 裘金娟
+gen0[1]._y = topMargin;
 
-// 计算画布范围
-const allX = allPeople.map(p => p._x);
-const allY = allPeople.map(p => p._y);
-const minX = Math.min(...allX) - nodeW;
-const maxX = Math.max(...allX) + nodeW;
-const minY = topMargin - 40;
-const maxY = Math.max(...allY) + 80;
-const svgW = maxX - minX + 160;
-const svgH = maxY - minY + 60;
-const offsetX = -minX + 80;
-const offsetY = -minY + 30;
+// 调整：让配偶紧挨着
+gen0[0]._x = centerX - nodeW - spouseGap/2;
+gen0[1]._x = centerX + spouseGap/2;
 
-// 应用偏移
-allPeople.forEach(p => {
-    p._x += offsetX;
-    p._y += offsetY;
-});
+// 第二代布局
+const gen1Y = topMargin + vGap;
+const gen1 = gens[1]; // 胡香成, 项晓飞, 胡香明
+
+// 胡香成 & 项晓飞（夫妻）在左，胡香明在右
+gen1[0]._x = centerX - nodeW - 80 - spouseGap/2; // 胡香成
+gen1[0]._y = gen1Y;
+gen1[1]._x = centerX - 80 + spouseGap/2;          // 项晓飞
+gen1[1]._y = gen1Y;
+gen1[2]._x = centerX + nodeW + 80;                // 胡香明
+gen1[2]._y = gen1Y;
+
+// 第三代布局
+const gen2Y = topMargin + vGap * 2;
+const gen2 = gens[2]; // 胡航琦, 胡航煜
+
+gen2[0]._x = centerX - 100; // 胡航琦（我）
+gen2[0]._y = gen2Y;
+gen2[1]._x = centerX + nodeW + 180; // 胡航煜
+gen2[1]._y = gen2Y;
+
+// 计算 SVG 尺寸
+const allX = people.map(p => p._x);
+const allY = people.map(p => p._y);
+const svgW = Math.max(...allX) + nodeW + 120;
+const svgH = Math.max(...allY) + nodeH + 80;
 
 // ============================================================
-// SVG 绘制
+// 绘制 SVG
 // ============================================================
-const svg = document.getElementById("chart");
+const svg = document.getElementById("tree");
 svg.setAttribute("width", svgW);
 svg.setAttribute("height", svgH);
 
-// --- 绘制世代分隔线和标签 ---
-for (let g = 0; g <= maxGen; g++) {
-    const y = genY[g] + offsetY;
-    // 虚线
+// --- 世代分隔线 ---
+for (let g = 0; g <= 2; g++) {
+    const y = topMargin + g * vGap;
+    const labels = ["祖辈", "父辈", "我辈"];
+
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", 20);
     line.setAttribute("x2", svgW - 20);
@@ -389,204 +358,214 @@ for (let g = 0; g <= maxGen; g++) {
     line.setAttribute("y2", y);
     line.setAttribute("class", "gen-line");
     svg.appendChild(line);
-    // 标签
+
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    text.setAttribute("x", 14);
-    text.setAttribute("y", y - 8);
+    text.setAttribute("x", 16);
+    text.setAttribute("y", y - 10);
     text.setAttribute("class", "gen-label");
-    text.textContent = genLabels[g] || `第${g+1}代`;
+    text.textContent = labels[g];
     svg.appendChild(text);
 }
 
-// --- 辅助函数：创建曲线 ---
-function makePath(x1, y1, x2, y2, color, dasharray, cssClass) {
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+// --- 辅助函数 ---
+function createPath(x1, y1, x2, y2) {
     const midY = (y1 + y2) / 2;
-    const d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
-    path.setAttribute("d", d);
+    return `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
+}
+
+function addLink(x1, y1, x2, y2, color, dasharray, cssClass) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", createPath(x1, y1, x2, y2));
     path.setAttribute("stroke", color);
     path.setAttribute("stroke-dasharray", dasharray || "none");
-    path.setAttribute("class", cssClass || "link-line");
+    path.setAttribute("class", cssClass);
+    svg.appendChild(path);
     return path;
 }
 
-// --- 辅助函数：创建连线标签 ---
-function makeLinkLabel(x1, y1, x2, y2, text) {
-    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    label.setAttribute("x", (x1 + x2) / 2);
-    label.setAttribute("y", (y1 + y2) / 2 - 6);
-    label.setAttribute("class", "link-label-text");
-    label.textContent = text;
-    return label;
-}
-
-// 存储所有连线元素（用于高亮交互）
-const linkElements = [];  // { el, labelEl, from, to }
-const nodeElements = {};  // id -> { el }
-
-// --- 绘制亲子连线 ---
-parentLinks.forEach(l => {
-    const from = personMap[l.from];
-    const to = personMap[l.to];
-    if (!from || !to) return;
-    const el = makePath(from._x, from._y + nodeH/2, to._x, to._y - nodeH/2, "#2980b9", "none", "link-line");
-    el.dataset.from = l.from;
-    el.dataset.to = l.to;
-    svg.appendChild(el);
-    const labelEl = makeLinkLabel(from._x, from._y + nodeH/2, to._x, to._y - nodeH/2, l.label);
-    svg.appendChild(labelEl);
-    linkElements.push({ el, labelEl, from: l.from, to: l.to, type: "parent" });
-});
-
-// --- 绘制配偶连线 ---
-spouseLinks.forEach(l => {
-    const a = personMap[l.a];
-    const b = personMap[l.b];
-    if (!a || !b) return;
-    // 配偶用水平双线
+function addSpouseLine(p1, p2) {
+    // 配偶之间画横线
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    const yOff = -4;
-    line.setAttribute("x1", a._x + (a._x < b._x ? nodeW/2 : -nodeW/2));
-    line.setAttribute("y1", a._y + yOff);
-    line.setAttribute("x2", b._x + (b._x > a._x ? -nodeW/2 : nodeW/2));
-    line.setAttribute("y2", b._y + yOff);
-    line.setAttribute("class", "spouse-line");
-    line.dataset.from = l.a;
-    line.dataset.to = l.b;
+    line.setAttribute("x1", p1._x + nodeW/2);
+    line.setAttribute("y1", p1._y + nodeH/2);
+    line.setAttribute("x2", p2._x + nodeW/2);
+    line.setAttribute("y2", p2._y + nodeH/2);
+    line.setAttribute("class", "link-spouse");
     svg.appendChild(line);
 
-    // 配偶符号 ♡
-    const sym = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    sym.setAttribute("x", (a._x + b._x) / 2);
-    sym.setAttribute("y", a._y + yOff - 10);
-    sym.setAttribute("class", "spouse-symbol");
-    sym.textContent = "♡";
-    svg.appendChild(sym);
+    // 中间放个爱心
+    const heart = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    heart.setAttribute("x", (p1._x + p2._x) / 2 + nodeW/2);
+    heart.setAttribute("y", p1._y + nodeH/2 - 12);
+    heart.setAttribute("class", "spouse-symbol");
+    heart.textContent = "♡";
+    svg.appendChild(heart);
+}
 
-    linkElements.push({ el: line, labelEl: sym, from: l.a, to: l.b, type: "spouse" });
+// --- 存储所有元素用于高亮 ---
+const linkElements = [];
+const nodeElements = {};
+
+// --- 绘制配偶连线 ---
+spouses.forEach(s => {
+    const a = personMap[s.a];
+    const b = personMap[s.b];
+    if (!a || !b) return;
+    addSpouseLine(a, b);
+    linkElements.push({ from: s.a, to: s.b, type: "spouse" });
 });
 
-// --- 绘制其他关系连线 ---
-otherLinks.forEach(l => {
-    const from = personMap[l.from];
-    const to = personMap[l.to];
-    if (!from || !to) return;
-    const el = makePath(from._x, from._y + nodeH/2, to._x, to._y - nodeH/2, "#c0392b", "6,3", "link-line");
-    el.style.opacity = "0.5";
-    el.dataset.from = l.from;
-    el.dataset.to = l.to;
-    svg.appendChild(el);
-    const labelEl = makeLinkLabel(from._x, from._y + nodeH/2, to._x, to._y - nodeH/2, l.label);
-    labelEl.style.fill = "#c0392b";
-    svg.appendChild(labelEl);
-    linkElements.push({ el, labelEl, from: l.from, to: l.to, type: "other" });
+// --- 绘制亲子连线 ---
+people.forEach(p => {
+    if (!p.parentId) return;
+    const parent = personMap[p.parentId];
+    if (!parent) return;
+
+    // 找到父母的中心点
+    const spouseOfParent = spouses.find(s => s.a === p.parentId || s.b === p.parentId);
+    let parentCenterX = parent._x + nodeW/2;
+
+    if (spouseOfParent) {
+        const spouse = personMap[spouseOfParent.a === p.parentId ? spouseOfParent.b : spouseOfParent.a];
+        parentCenterX = (parent._x + spouse._x) / 2 + nodeW/2;
+    }
+
+    const path = addLink(
+        parentCenterX, parent._y + nodeH,
+        p._x + nodeW/2, p._y,
+        "#2980b9", "none", "link-parent"
+    );
+    path.dataset.from = p.parentId;
+    path.dataset.to = p.id;
+    linkElements.push({ from: p.parentId, to: p.id, type: "parent", el: path });
 });
 
-// --- 绘制主仆连线 ---
-servantLinks.forEach(l => {
-    const from = personMap[l.from];
-    const to = personMap[l.to];
-    if (!from || !to) return;
-    const el = makePath(from._x + 20, from._y + nodeH/2, to._x, to._y - nodeH/2, "#27ae60", "3,4", "link-line");
-    el.style.opacity = "0.4";
-    el.dataset.from = l.from;
-    el.dataset.to = l.to;
-    svg.appendChild(el);
-    const labelEl = makeLinkLabel(from._x + 20, from._y + nodeH/2, to._x, to._y - nodeH/2, l.label);
-    labelEl.style.fill = "#27ae60";
-    svg.appendChild(labelEl);
-    linkElements.push({ el, labelEl, from: l.from, to: l.to, type: "servant" });
-});
-
-// --- 绘制节点卡片 ---
-allPeople.forEach(p => {
+// --- 绘制节点 ---
+people.forEach(p => {
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    g.setAttribute("class", "node-card");
-    g.setAttribute("transform", `translate(${p._x - nodeW/2}, ${p._y - nodeH/2})`);
+    g.setAttribute("class", "node-group");
+    g.setAttribute("transform", `translate(${p._x}, ${p._y})`);
     g.dataset.id = p.id;
 
-    const colors = branchColors[p.branch] || branchColors["荣"];
+    // 卡片颜色
+    const isMale = p.gender === "m";
+    const bgColor = isMale ? "#e8f4fd" : "#fef0f5";
+    const borderColor = isMale ? "#2980b9" : "#e91e63";
+    const textColor = isMale ? "#2471a3" : "#c2185b";
 
-    // 卡片背景
+    // 如果是"我"，加特殊边框
+    if (p.isMe) {
+        const highlight = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        highlight.setAttribute("x", -4);
+        highlight.setAttribute("y", -4);
+        highlight.setAttribute("width", nodeW + 8);
+        highlight.setAttribute("height", nodeH + 8);
+        highlight.setAttribute("rx", 14);
+        highlight.setAttribute("ry", 14);
+        highlight.setAttribute("fill", "none");
+        highlight.setAttribute("stroke", "#c0392b");
+        highlight.setAttribute("stroke-width", 3);
+        highlight.setAttribute("stroke-dasharray", "6 3");
+        g.appendChild(highlight);
+
+        // "我" 标记
+        const badge = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        badge.setAttribute("x", nodeW - 20);
+        badge.setAttribute("y", -8);
+        badge.setAttribute("width", 24);
+        badge.setAttribute("height", 16);
+        badge.setAttribute("rx", 8);
+        badge.setAttribute("fill", "#c0392b");
+        g.appendChild(badge);
+
+        const badgeText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        badgeText.setAttribute("x", nodeW - 8);
+        badgeText.setAttribute("y", 0);
+        badgeText.setAttribute("class", "me-badge");
+        badgeText.setAttribute("fill", "#fff");
+        badgeText.textContent = "我";
+        g.appendChild(badgeText);
+    }
+
+    // 主卡片
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     rect.setAttribute("width", nodeW);
     rect.setAttribute("height", nodeH);
-    rect.setAttribute("class", "node-rect");
-    rect.setAttribute("fill", colors.bg);
-    rect.setAttribute("stroke", colors.border);
+    rect.setAttribute("class", "node-card");
+    rect.setAttribute("fill", bgColor);
+    rect.setAttribute("stroke", borderColor);
     g.appendChild(rect);
 
-    // 性别小标记
-    const genderMark = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    genderMark.setAttribute("cx", nodeW - 10);
-    genderMark.setAttribute("cy", 10);
-    genderMark.setAttribute("r", 4);
-    genderMark.setAttribute("fill", p.gender === "f" ? "#e91e63" : "#3498db");
-    genderMark.setAttribute("opacity", "0.6");
-    g.appendChild(genderMark);
-
     // 名字
-    const nameText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    nameText.setAttribute("x", nodeW / 2);
-    nameText.setAttribute("y", nodeH / 2 - 6);
-    nameText.setAttribute("class", "node-name");
-    nameText.setAttribute("fill", colors.text);
-    nameText.textContent = p.id;
-    g.appendChild(nameText);
+    const name = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    name.setAttribute("x", nodeW/2);
+    name.setAttribute("y", nodeH/2 - 6);
+    name.setAttribute("class", "node-name");
+    name.setAttribute("fill", textColor);
+    name.textContent = p.id;
+    g.appendChild(name);
 
-    // 简短身份
-    const titleShort = p.title.length > 10 ? p.title.slice(0, 10) + "…" : p.title;
-    const titleText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    titleText.setAttribute("x", nodeW / 2);
-    titleText.setAttribute("y", nodeH / 2 + 12);
-    titleText.setAttribute("class", "node-title-text");
-    titleText.textContent = titleShort;
-    g.appendChild(titleText);
+    // 性别标识
+    const gender = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    gender.setAttribute("x", nodeW/2);
+    gender.setAttribute("y", nodeH/2 + 14);
+    gender.setAttribute("class", "node-gender");
+    gender.setAttribute("fill", "#999");
+    gender.textContent = isMale ? "♂" : "♀";
+    g.appendChild(gender);
 
     svg.appendChild(g);
     nodeElements[p.id] = { el: g, data: p };
 
-    // 交互
+    // 交互事件
     g.addEventListener("mouseenter", (e) => highlightNode(p.id, e));
     g.addEventListener("mousemove", (e) => moveTooltip(e));
-    g.addEventListener("mouseleave", () => clearHighlight());
+    g.addEventListener("mouseleave", clearHighlight);
 });
 
 // ============================================================
-// 交互：悬停高亮 + Tooltip
+// 交互逻辑
 // ============================================================
 const tooltip = document.getElementById("tooltip");
 
-function getAllRelations(nodeId) {
+function getRelations(nodeId) {
     const rels = [];
+
     // 配偶
-    spouseLinks.forEach(l => {
-        if (l.a === nodeId) rels.push({ other: l.b, rel: "配偶", type: "spouse" });
-        if (l.b === nodeId) rels.push({ other: l.a, rel: "配偶", type: "spouse" });
+    spouses.forEach(s => {
+        if (s.a === nodeId) rels.push({ other: s.b, rel: "配偶" });
+        if (s.b === nodeId) rels.push({ other: s.a, rel: "配偶" });
     });
+
     // 亲子
-    parentLinks.forEach(l => {
-        if (l.from === nodeId) rels.push({ other: l.to, rel: l.label, type: "parent" });
-        if (l.to === nodeId) rels.push({ other: l.from, rel: l.label, type: "parent" });
+    people.forEach(p => {
+        if (p.parentId === nodeId) {
+            rels.push({ other: p.id, rel: p.gender === "m" ? "儿子" : "女儿" });
+        }
+        if (p.id === nodeId && p.parentId) {
+            const parent = personMap[p.parentId];
+            if (parent) rels.push({ other: p.parentId, rel: parent.gender === "m" ? "父亲" : "母亲" });
+        }
     });
-    // 其他
-    otherLinks.forEach(l => {
-        if (l.from === nodeId) rels.push({ other: l.to, rel: l.label, type: "other" });
-        if (l.to === nodeId) rels.push({ other: l.from, rel: l.label, type: "other" });
-    });
-    // 主仆
-    servantLinks.forEach(l => {
-        if (l.from === nodeId) rels.push({ other: l.to, rel: l.label, type: "servant" });
-        if (l.to === nodeId) rels.push({ other: l.from, rel: l.label, type: "servant" });
-    });
+
+    // 兄弟姐妹（同父母）
+    const me = personMap[nodeId];
+    if (me && me.parentId) {
+        people.forEach(p => {
+            if (p.id !== nodeId && p.parentId === me.parentId) {
+                rels.push({ other: p.id, rel: p.gender === "m" ? "兄弟" : "姐妹" });
+            }
+        });
+    }
+
     return rels;
 }
 
 function highlightNode(nodeId, event) {
-    const rels = getAllRelations(nodeId);
+    const rels = getRelations(nodeId);
     const connectedIds = new Set([nodeId, ...rels.map(r => r.other)]);
 
-    // 淡化所有
+    // 淡化不相关的节点
     Object.values(nodeElements).forEach(n => {
         if (!connectedIds.has(n.data.id)) {
             n.el.classList.add("dimmed");
@@ -595,21 +574,24 @@ function highlightNode(nodeId, event) {
         }
     });
 
+    // 淡化不相关的连线
     linkElements.forEach(l => {
         if (l.from === nodeId || l.to === nodeId) {
-            l.el.classList.add("highlighted");
-            l.el.classList.remove("dimmed");
-            if (l.labelEl) { l.labelEl.classList.add("highlighted"); l.labelEl.classList.remove("dimmed"); }
+            if (l.el) l.el.classList.add("highlighted");
+            l.el?.classList.remove("dimmed");
         } else {
-            l.el.classList.add("dimmed");
-            if (l.labelEl) l.labelEl.classList.add("dimmed");
+            if (l.el) l.el.classList.add("dimmed");
         }
     });
 
     // Tooltip
     const p = personMap[nodeId];
     const relHtml = rels.map(r => `→ ${r.other}：${r.rel}`).join("<br>");
-    tooltip.innerHTML = `<div class="name">${p.id}</div><div class="info">${p.title}</div><div class="rels">${relHtml || "暂无关系"}</div>`;
+    tooltip.innerHTML = `
+        <div class="name">${p.id}</div>
+        <div class="info">${p.desc}</div>
+        <div class="rels">${relHtml || "无其他关系"}</div>
+    `;
     tooltip.style.opacity = "1";
     moveTooltip(event);
 }
@@ -624,8 +606,7 @@ function clearHighlight() {
         n.el.classList.remove("dimmed", "highlighted");
     });
     linkElements.forEach(l => {
-        l.el.classList.remove("dimmed", "highlighted");
-        if (l.labelEl) l.labelEl.classList.remove("dimmed", "highlighted");
+        if (l.el) l.el.classList.remove("dimmed", "highlighted");
     });
     tooltip.style.opacity = "0";
 }
