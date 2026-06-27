@@ -35,7 +35,6 @@
             margin-top: 6px;
         }
 
-        /* 图例 */
         .legend-bar {
             display: flex;
             justify-content: center;
@@ -67,7 +66,6 @@
             flex-shrink: 0;
         }
 
-        /* 主画布 */
         .tree-container {
             display: flex;
             justify-content: center;
@@ -81,7 +79,6 @@
             touch-action: pan-x pan-y;
         }
 
-        /* 世代标签 */
         .gen-label {
             font-size: 12px;
             fill: #bbb;
@@ -95,7 +92,6 @@
             stroke-dasharray: 6 4;
         }
 
-        /* 节点卡片 */
         .node-group {
             cursor: pointer;
         }
@@ -132,7 +128,6 @@
             dominant-baseline: central;
         }
 
-        /* 连线 */
         .link-parent {
             fill: none;
             stroke: #2980b9;
@@ -153,11 +148,9 @@
             dominant-baseline: central;
         }
 
-        /* 高亮 */
         .dimmed { opacity: 0.12 !important; transition: opacity 0.2s; }
         .highlighted { opacity: 1 !important; transition: opacity 0.2s; }
 
-        /* Tooltip */
         .tooltip {
             position: fixed;
             pointer-events: none;
@@ -184,7 +177,6 @@
             font-size: 12px;
         }
 
-        /* 我 的标识 */
         .me-badge {
             font-size: 9px;
             text-anchor: middle;
@@ -192,7 +184,6 @@
             font-weight: 600;
         }
 
-        /* 底部提示 */
         .footer {
             text-align: center;
             padding: 8px 0 24px;
@@ -200,7 +191,6 @@
             color: #bbb;
         }
 
-        /* 缩放控制按钮 */
         .zoom-controls {
             position: fixed;
             bottom: 20px;
@@ -234,7 +224,6 @@
             transform: scale(0.95);
         }
 
-        /* 移动端适配 */
         @media (max-width: 600px) {
             .header { padding: 16px 12px 4px; }
             .legend-bar { gap: 8px 14px; padding: 8px 8px 0; }
@@ -281,17 +270,23 @@
 // 胡氏家族数据
 // ============================================================
 const people = [
+    // 第一代（祖辈）
     { id: "胡文贵", gen: 0, gender: "m", desc: "祖父" },
     { id: "裘金娟", gen: 0, gender: "f", desc: "祖母" },
+    { id: "项林国", gen: 0, gender: "m", desc: "外祖父" },
+    { id: "闻东女", gen: 0, gender: "f", desc: "外祖母" },
+    // 第二代（父辈）
     { id: "胡香成", gen: 1, gender: "m", desc: "父亲·长子", parentId: "胡文贵" },
-    { id: "项晓飞", gen: 1, gender: "f", desc: "母亲", parentId: null },
+    { id: "项晓飞", gen: 1, gender: "f", desc: "母亲", parentId: "项林国" },
     { id: "胡香明", gen: 1, gender: "m", desc: "叔叔·次子", parentId: "胡文贵" },
+    // 第三代（我辈）
     { id: "胡航琦", gen: 2, gender: "m", desc: "我·胡香成之子", parentId: "胡香成", isMe: true },
     { id: "胡航煜", gen: 2, gender: "m", desc: "堂弟·胡香明之子", parentId: "胡香明" },
 ];
 
 const spouses = [
     { a: "胡文贵", b: "裘金娟" },
+    { a: "项林国", b: "闻东女" },
     { a: "胡香成", b: "项晓飞" },
 ];
 
@@ -313,60 +308,58 @@ function getLayout() {
     const hGap = mobile ? 20 : 60;
     const vGap = mobile ? 120 : 180;
     const topMargin = mobile ? 50 : 80;
-    return { mobile, nodeW, nodeH, spouseGap, hGap, vGap, topMargin };
+    // 祖辈两对夫妻之间的间距
+    const coupleSep = mobile ? 130 : 220;
+    return { mobile, nodeW, nodeH, spouseGap, hGap, vGap, topMargin, coupleSep };
+}
+
+// 辅助：放置一对夫妻（以两人之间的间隙中心为 centerX）
+function placeCouple(centerX, y, leftPerson, rightPerson, nodeW, spouseGap) {
+    leftPerson._x = centerX - nodeW - spouseGap / 2;
+    leftPerson._y = y;
+    rightPerson._x = centerX + spouseGap / 2;
+    rightPerson._y = y;
+    // 返回这对夫妻的视觉中心（两人中点）
+    return centerX;
 }
 
 function calcPositions() {
     const L = getLayout();
-    const { nodeW, nodeH, spouseGap, vGap, topMargin } = L;
+    const { nodeW, nodeH, spouseGap, vGap, topMargin, coupleSep } = L;
     const screenW = window.innerWidth;
+    const centerX = screenW / 2;
 
-    // 中心点 - 根据屏幕自适应
-    let centerX;
-    if (L.mobile) {
-        centerX = screenW / 2;
-    } else {
-        centerX = Math.max(screenW / 2, 400);
-    }
-
-    // 第一代：爷爷奶奶
+    // === 第一代（祖辈）：两对夫妻 ===
     const gen0Y = topMargin;
-    const gen0 = people.filter(p => p.gen === 0);
-    const gen0TotalW = gen0.length * nodeW + (gen0.length - 1) * spouseGap;
-    const gen0StartX = centerX - gen0TotalW / 2;
-    gen0.forEach((p, i) => {
-        p._x = gen0StartX + i * (nodeW + spouseGap) - nodeW / 2;
-        p._y = gen0Y;
-    });
 
-    // 第二代：父母（配偶并排）+ 叔叔
+    // 左侧：胡文贵 + 裘金娟
+    const c1x = centerX - coupleSep;
+    placeCouple(c1x, gen0Y, personMap["胡文贵"], personMap["裘金娟"], nodeW, spouseGap);
+
+    // 右侧：项林国 + 闻东女
+    const c2x = centerX + coupleSep;
+    placeCouple(c2x, gen0Y, personMap["项林国"], personMap["闻东女"], nodeW, spouseGap);
+
+    // === 第二代（父辈）===
     const gen1Y = topMargin + vGap;
-    const gen1Spouse = people.filter(p => p.gen === 1 && (p.id === "胡香成" || p.id === "项晓飞"));
-    const gen1Single = people.filter(p => p.gen === 1 && p.id === "胡香明");
 
-    // 夫妻组合
-    const coupleW = 2 * nodeW + spouseGap;
-    const gen1TotalW = coupleW + (L.mobile ? 40 : 100) + nodeW;
-    const gen1StartX = centerX - gen1TotalW / 2;
+    // 中间：胡香成 + 项晓飞（夫妻）
+    placeCouple(centerX, gen1Y, personMap["胡香成"], personMap["项晓飞"], nodeW, spouseGap);
 
-    gen1Spouse[0]._x = gen1StartX;
-    gen1Spouse[0]._y = gen1Y;
-    gen1Spouse[1]._x = gen1StartX + nodeW + spouseGap;
-    gen1Spouse[1]._y = gen1Y;
+    // 左侧：胡香明（在胡文贵夫妻正下方）
+    personMap["胡香明"]._x = c1x - nodeW / 2;
+    personMap["胡香明"]._y = gen1Y;
 
-    gen1Single[0]._x = gen1StartX + coupleW + (L.mobile ? 40 : 100);
-    gen1Single[0]._y = gen1Y;
-
-    // 第三代
+    // === 第三代（我辈）===
     const gen2Y = topMargin + vGap * 2;
-    const gen2 = people.filter(p => p.gen === 2);
 
-    // 胡航琦在父亲正下方，胡航煜在叔叔正下方
-    gen2[0]._x = gen1Spouse[0]._x + nodeW / 2 + spouseGap / 2 - nodeW / 2;
-    gen2[0]._y = gen2Y;
+    // 胡航琦：在胡香成+项晓飞夫妻正下方
+    personMap["胡航琦"]._x = centerX - nodeW / 2;
+    personMap["胡航琦"]._y = gen2Y;
 
-    gen2[1]._x = gen1Single[0]._x + nodeW / 2 - nodeW / 2;
-    gen2[1]._y = gen2Y;
+    // 胡航煜：在胡香明正下方
+    personMap["胡航煜"]._x = c1x - nodeW / 2;
+    personMap["胡航煜"]._y = gen2Y;
 
     return L;
 }
@@ -375,8 +368,6 @@ function calcPositions() {
 // 绘制
 // ============================================================
 const svg = document.getElementById("tree");
-let currentScale = 1;
-let panX = 0, panY = 0;
 
 function render() {
     const L = calcPositions();
@@ -393,32 +384,21 @@ function render() {
 
     // 移动端自适应缩放
     const screenW = window.innerWidth;
+    let currentScale = 1;
+    let panX = 0;
+
     if (L.mobile && svgW > screenW) {
-        currentScale = screenW / svgW * 0.95;
-        panX = -minX * currentScale + (screenW - svgW * currentScale) / 2;
-        panY = 0;
-    } else {
-        currentScale = 1;
-        panX = -minX;
-        panY = 0;
+        currentScale = screenW / svgW * 0.92;
     }
 
     svg.setAttribute("width", svgW * currentScale);
     svg.setAttribute("height", svgH * currentScale);
-    svg.setAttribute("viewBox", `0 0 ${svgW} ${svgH}`);
+
+    const viewBoxX = minX;
+    svg.setAttribute("viewBox", `${viewBoxX} 0 ${svgW} ${svgH}`);
 
     // 清空
     svg.innerHTML = "";
-
-    // 主容器（支持缩放平移）
-    const container = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    container.setAttribute("transform", `translate(${panX / currentScale}, ${panY / currentScale}) scale(${currentScale})`);
-    // 不用transform，直接viewBox处理
-
-    // 实际用 viewBox 来缩放，不用 transform
-    const viewBoxW = svgW;
-    const viewBoxH = svgH;
-    svg.setAttribute("viewBox", `${minX} 0 ${viewBoxW} ${viewBoxH}`);
 
     // --- 世代分隔线 ---
     const genLabels = ["祖辈", "父辈", "我辈"];
@@ -447,7 +427,6 @@ function render() {
         return `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
     }
 
-    // --- 存储交互元素 ---
     const linkElements = [];
     const nodeElements = {};
 
@@ -486,9 +465,11 @@ function render() {
         // 找配偶中心
         const spousePair = spouses.find(s => s.a === p.parentId || s.b === p.parentId);
         let parentCenterX = parent._x + nodeW / 2;
+        let spouseId = null;
 
         if (spousePair) {
-            const spouse = personMap[spousePair.a === p.parentId ? spousePair.b : spousePair.a];
+            spouseId = spousePair.a === p.parentId ? spousePair.b : spousePair.a;
+            const spouse = personMap[spouseId];
             parentCenterX = (parent._x + spouse._x) / 2 + nodeW / 2;
         }
 
@@ -498,7 +479,13 @@ function render() {
         path.dataset.from = p.parentId;
         path.dataset.to = p.id;
         svg.appendChild(path);
-        linkElements.push({ el: path, from: p.parentId, to: p.id, type: "parent" });
+        linkElements.push({
+            el: path,
+            from: p.parentId,
+            to: p.id,
+            type: "parent",
+            coupleIds: spouseId ? [p.parentId, spouseId] : [p.parentId]
+        });
     });
 
     // --- 节点 ---
@@ -564,7 +551,6 @@ function render() {
         g.appendChild(name);
 
         if (!L.mobile) {
-            // 性别 + 描述（仅桌面端）
             const gender = document.createElementNS("http://www.w3.org/2000/svg", "text");
             gender.setAttribute("x", nodeW / 2);
             gender.setAttribute("y", nodeH / 2 + 14);
@@ -573,7 +559,6 @@ function render() {
             gender.textContent = isMale ? "♂" : "♀";
             g.appendChild(gender);
         } else {
-            // 移动端只显示小描述
             const desc = document.createElementNS("http://www.w3.org/2000/svg", "text");
             desc.setAttribute("x", nodeW / 2);
             desc.setAttribute("y", nodeH / 2 + 12);
@@ -587,7 +572,6 @@ function render() {
         svg.appendChild(g);
         nodeElements[p.id] = { el: g, data: p };
 
-        // 交互：支持触摸和鼠标
         g.addEventListener("mouseenter", e => highlightNode(p.id, e));
         g.addEventListener("mousemove", e => moveTooltip(e));
         g.addEventListener("mouseleave", clearHighlight);
@@ -603,18 +587,31 @@ function render() {
     // --- 交互函数 ---
     function getRelations(nodeId) {
         const rels = [];
+        // 配偶
         spouses.forEach(s => {
             if (s.a === nodeId) rels.push({ other: s.b, rel: "配偶" });
             if (s.b === nodeId) rels.push({ other: s.a, rel: "配偶" });
         });
+        // 子女
         people.forEach(p => {
             if (p.parentId === nodeId) rels.push({ other: p.id, rel: p.gender === "m" ? "儿子" : "女儿" });
-            if (p.id === nodeId && p.parentId) {
-                const par = personMap[p.parentId];
-                if (par) rels.push({ other: p.parentId, rel: par.gender === "m" ? "父亲" : "母亲" });
-            }
         });
+        // 父母（直接 + 配偶推断）
         const me = personMap[nodeId];
+        if (me && me.parentId) {
+            const par = personMap[me.parentId];
+            if (par) rels.push({ other: me.parentId, rel: par.gender === "m" ? "父亲" : "母亲" });
+            // 推断另一位家长（父亲的配偶 = 母亲，反之亦然）
+            const parentSpouse = spouses.find(s => s.a === me.parentId || s.b === me.parentId);
+            if (parentSpouse) {
+                const otherParentId = parentSpouse.a === me.parentId ? parentSpouse.b : parentSpouse.a;
+                const op = personMap[otherParentId];
+                if (op && op.id !== nodeId && !rels.find(r => r.other === otherParentId)) {
+                    rels.push({ other: otherParentId, rel: op.gender === "m" ? "父亲" : "母亲" });
+                }
+            }
+        }
+        // 兄弟姐妹
         if (me && me.parentId) {
             people.forEach(p => {
                 if (p.id !== nodeId && p.parentId === me.parentId) {
@@ -642,12 +639,14 @@ function render() {
         });
 
         linkElements.forEach(l => {
-            if (l.from === nodeId || l.to === nodeId) {
+            const isRelated = l.from === nodeId || l.to === nodeId ||
+                (l.coupleIds && l.coupleIds.includes(nodeId));
+            if (isRelated) {
                 l.el.classList.add("highlighted");
                 l.el.classList.remove("dimmed");
                 l.el.style.opacity = "0.9";
                 l.el.style.strokeWidth = "3";
-                if (l.labelEl) { l.labelEl.classList.remove("dimmed"); }
+                if (l.labelEl) l.labelEl.classList.remove("dimmed");
             } else {
                 l.el.classList.add("dimmed");
                 l.el.classList.remove("highlighted");
@@ -660,7 +659,6 @@ function render() {
         tooltip.innerHTML = `<div class="name">${p.id}</div><div class="info">${p.desc}</div><div class="rels">${relHtml || "无其他关系"}</div>`;
         tooltip.style.opacity = "1";
 
-        // 移动端：tooltip 居中显示
         if (isMobile()) {
             tooltip.style.left = "50%";
             tooltip.style.top = "auto";
@@ -715,22 +713,19 @@ function render() {
     };
 }
 
-// 缩放按钮事件
 document.getElementById("zoomIn").addEventListener("click", window._zoomIn || function(){});
 document.getElementById("zoomOut").addEventListener("click", window._zoomOut || function(){});
 document.getElementById("zoomFit").addEventListener("click", window._zoomFit || function(){});
 
-// 初始渲染
 render();
 
-// 窗口变化时重绘
 let resizeTimer;
 window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(render, 200);
 });
 
-// 支持双指缩放（原生 SVG 触摸支持）
+// 双指缩放
 let lastTouchDist = 0;
 let lastViewBox = null;
 
