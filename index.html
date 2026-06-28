@@ -49,7 +49,7 @@
             .header { padding: 16px 12px 4px; }
             .legend-bar { gap: 8px 14px; padding: 8px 8px 0; }
             .tree-container { padding: 6px 4px 30px; }
-            .node-name { font-size: 12px; }
+            .node-name { font-size: 11px; }
             .node-gender { font-size: 9px; }
             .node-desc { display: none; }
             .gen-label { font-size: 10px; }
@@ -79,13 +79,13 @@
 <div class="footer">💡 手机双指缩放 · 点击人物查看详情</div>
 <script>
 // ============================================================
-// 胡氏家族数据（4代）
+// 胡氏家族数据（5代 63人）
 // ============================================================
 const people = [
-    // 第零代（曾祖辈）
+    // Gen 0 - 曾祖辈
     { id: "胡自林", gen: 0, gender: "m", desc: "曾祖父" },
     { id: "陈琴连", gen: 0, gender: "f", desc: "曾祖母" },
-    // 第一代（祖辈）
+    // Gen 1 - 祖辈
     { id: "胡文华", gen: 1, gender: "m", desc: "祖父长兄", parentId: "胡自林" },
     { id: "胡文荣", gen: 1, gender: "m", desc: "祖父次兄", parentId: "胡自林" },
     { id: "胡文贵", gen: 1, gender: "m", desc: "祖父·老三", parentId: "胡自林" },
@@ -93,26 +93,72 @@ const people = [
     { id: "胡文富", gen: 1, gender: "m", desc: "祖父四弟", parentId: "胡自林" },
     { id: "胡文娟", gen: 1, gender: "f", desc: "祖父大姐", parentId: "胡自林" },
     { id: "胡荣娟", gen: 1, gender: "f", desc: "祖父二姐", parentId: "胡自林" },
+    { id: "王国泉", gen: 1, gender: "m", desc: "二姐夫" },
     { id: "胡珍娟", gen: 1, gender: "f", desc: "祖父三姐", parentId: "胡自林" },
+    { id: "章彩斌", gen: 1, gender: "m", desc: "三姐夫" },
     { id: "胡秋娟", gen: 1, gender: "f", desc: "祖父四姐", parentId: "胡自林" },
+    { id: "袁南儿", gen: 1, gender: "m", desc: "四姐夫" },
     { id: "项林国", gen: 1, gender: "m", desc: "外祖父" },
     { id: "闻东女", gen: 1, gender: "f", desc: "外祖母" },
-    // 第二代（父辈）
+    // Gen 2 - 父辈
+    { id: "胡香红", gen: 2, gender: "m", desc: "文华伯父长子", parentId: "胡文华" },
+    { id: "胡益苹", gen: 2, gender: "f", desc: "文华伯父长女", parentId: "胡文华" },
+    { id: "胡明锋", gen: 2, gender: "m", desc: "文荣伯父长子", parentId: "胡文荣" },
+    { id: "胡娇娇", gen: 2, gender: "f", desc: "文荣伯父长女", parentId: "胡文荣" },
     { id: "胡香成", gen: 2, gender: "m", desc: "父亲·长子", parentId: "胡文贵" },
-    { id: "项晓飞", gen: 2, gender: "f", desc: "母亲", parentId: "项林国" },
+    { id: "项晓飞", gen: 2, gender: "f", desc: "母亲" },
     { id: "胡香明", gen: 2, gender: "m", desc: "叔叔·次子", parentId: "胡文贵" },
+    { id: "胡香东", gen: 2, gender: "m", desc: "文富叔伯长子", parentId: "胡文富" },
+    { id: "胡香龙", gen: 2, gender: "m", desc: "文富叔伯次子", parentId: "胡文富" },
+    { id: "郑明辉", gen: 2, gender: "m", desc: "文娟姑母长子", parentId: "胡文娟" },
+    { id: "郑亚芬", gen: 2, gender: "f", desc: "文娟姑母长女", parentId: "胡文娟" },
+    { id: "郑明芬", gen: 2, gender: "f", desc: "文娟姑母次女", parentId: "胡文娟" },
+    { id: "王福军", gen: 2, gender: "m", desc: "荣娟姑母长子", parentId: "胡荣娟" },
+    { id: "王露萍", gen: 2, gender: "f", desc: "荣娟姑母长女", parentId: "胡荣娟" },
+    { id: "章晓明", gen: 2, gender: "m", desc: "珍娟姑母长子", parentId: "胡珍娟" },
+    { id: "章晓露", gen: 2, gender: "f", desc: "珍娟姑母长女", parentId: "胡珍娟" },
+    { id: "袁晓源", gen: 2, gender: "m", desc: "秋娟姑母长子", parentId: "胡秋娟" },
+    { id: "袁路香", gen: 2, gender: "f", desc: "秋娟姑母长女", parentId: "胡秋娟" },
     { id: "项晓宏", gen: 2, gender: "m", desc: "舅舅", parentId: "项林国" },
     { id: "郑燕萍", gen: 2, gender: "f", desc: "舅妈" },
-    // 第三代（我辈）
+    // Gen 3 - 我辈
     { id: "胡航琦", gen: 3, gender: "m", desc: "我·胡香成之子", parentId: "胡香成", isMe: true },
+    { id: "胡天乐", gen: 3, gender: "m", desc: "香红伯父长子", parentId: "胡香红" },
+    { id: "胡香红次子", gen: 3, gender: "m", desc: "香红伯父次子(小宝)", parentId: "胡香红" },
+    { id: "胡益苹的儿子", gen: 3, gender: "m", desc: "益苹姑表姐长子", parentId: "胡益苹" },
+    { id: "胡益苹的女儿", gen: 3, gender: "f", desc: "益苹姑表姐长女", parentId: "胡益苹" },
+    { id: "胡俊豪", gen: 3, gender: "m", desc: "明锋伯父长子", parentId: "胡明锋" },
+    { id: "胡娇娇的儿子", gen: 3, gender: "m", desc: "娇娇姑表姐长子", parentId: "胡娇娇" },
+    { id: "胡娇娇的女儿", gen: 3, gender: "f", desc: "娇娇姑表姐长女", parentId: "胡娇娇" },
+    { id: "胡香东的女儿", gen: 3, gender: "f", desc: "香东伯父长女", parentId: "胡香东" },
+    { id: "胡香龙的儿子", gen: 3, gender: "m", desc: "香龙伯父长子", parentId: "胡香龙" },
     { id: "胡航煜", gen: 3, gender: "m", desc: "堂弟·胡香明之子", parentId: "胡香明" },
     { id: "项政琪", gen: 3, gender: "m", desc: "表弟·项晓宏长子", parentId: "项晓宏" },
     { id: "郑佳琪", gen: 3, gender: "m", desc: "表弟·项晓宏次子", parentId: "项晓宏" },
+    { id: "郑明辉之子", gen: 3, gender: "m", desc: "明辉表兄之子(小宝)", parentId: "郑明辉" },
+    { id: "郑亚芬的儿子", gen: 3, gender: "m", desc: "亚芬表姐长子", parentId: "郑亚芬" },
+    { id: "郑亚芬的女儿", gen: 3, gender: "f", desc: "亚芬表姐长女", parentId: "郑亚芬" },
+    { id: "郑明芬的儿子", gen: 3, gender: "m", desc: "明芬表姐长子", parentId: "郑明芬" },
+    { id: "郑明芬的女儿", gen: 3, gender: "f", desc: "明芬表姐长女", parentId: "郑明芬" },
+    { id: "王雅萱", gen: 3, gender: "f", desc: "福军表兄长女", parentId: "王福军" },
+    { id: "章晓露的女儿", gen: 3, gender: "f", desc: "晓露表姐长女", parentId: "章晓露" },
+    { id: "袁晓源的儿子", gen: 3, gender: "m", desc: "晓源表兄长子", parentId: "袁晓源" },
+    { id: "袁晓源的女儿", gen: 3, gender: "f", desc: "晓源表兄长女", parentId: "袁晓源" },
+    { id: "袁路香的长女", gen: 3, gender: "f", desc: "路香表姐长女", parentId: "袁路香" },
+    { id: "袁路香的次女", gen: 3, gender: "f", desc: "路香表姐次女", parentId: "袁路香" },
+    { id: "袁路香的儿子", gen: 3, gender: "m", desc: "路香表姐长子", parentId: "袁路香" },
+    // Gen 4 - 子侄辈
+    { id: "王雅萱之女", gen: 4, gender: "f", desc: "雅萱表侄女", parentId: "王雅萱" },
+    { id: "章晓露外孙女", gen: 4, gender: "f", desc: "晓露表姐之外孙女", parentId: "章晓露的女儿" },
+    { id: "袁晓源孙女", gen: 4, gender: "f", desc: "晓源表兄之孙女", parentId: "袁晓源的儿子" },
 ];
 
 const spouses = [
     { a: "胡自林", b: "陈琴连" },
     { a: "胡文贵", b: "裘金娟" },
+    { a: "胡荣娟", b: "王国泉" },
+    { a: "胡珍娟", b: "章彩斌" },
+    { a: "胡秋娟", b: "袁南儿" },
     { a: "项林国", b: "闻东女" },
     { a: "胡香成", b: "项晓飞" },
     { a: "项晓宏", b: "郑燕萍" },
@@ -120,6 +166,19 @@ const spouses = [
 
 const personMap = {};
 people.forEach(p => personMap[p.id] = p);
+
+// Build spouse lookup
+const spouseOf = {};
+spouses.forEach(s => { spouseOf[s.a] = s.b; spouseOf[s.b] = s.a; });
+
+// Build children lookup
+const childrenOf = {};
+people.forEach(p => {
+    if (p.parentId) {
+        if (!childrenOf[p.parentId]) childrenOf[p.parentId] = [];
+        childrenOf[p.parentId].push(p.id);
+    }
+});
 
 // ============================================================
 // 响应式布局
@@ -133,119 +192,226 @@ function getLayout() {
     const spouseGap = mobile ? 10 : 18;
     const vGap = mobile ? 110 : 170;
     const topMargin = mobile ? 50 : 75;
-    return { mobile, nodeW, nodeH, spouseGap, vGap, topMargin };
+    const sibGap = mobile ? 8 : 12;
+    const groupGap = mobile ? 30 : 50;
+    return { mobile, nodeW, nodeH, spouseGap, vGap, topMargin, sibGap, groupGap };
 }
 
-function placeCouple(centerX, y, leftPerson, rightPerson, nodeW, spouseGap) {
-    leftPerson._x = centerX - nodeW - spouseGap / 2;
-    leftPerson._y = y;
-    rightPerson._x = centerX + spouseGap / 2;
-    rightPerson._y = y;
+// Get all children of a person (or couple). For gen1 ordering, we use a fixed order.
+// Gen1 birth order (children of 胡自林):
+const gen1BirthOrder = ["胡文华","胡文荣","胡文贵","胡文富","胡文娟","胡荣娟","胡珍娟","胡秋娟"];
+// Gen2 children ordering per parent:
+const gen2Order = {
+    "胡文华": ["胡香红","胡益苹"],
+    "胡文荣": ["胡明锋","胡娇娇"],
+    "胡文贵": ["胡香成","胡香明"],
+    "胡文富": ["胡香东","胡香龙"],
+    "胡文娟": ["郑明辉","郑亚芬","郑明芬"],
+    "胡荣娟": ["王福军","王露萍"],
+    "胡珍娟": ["章晓明","章晓露"],
+    "胡秋娟": ["袁晓源","袁路香"],
+    "项林国": ["项晓宏"],
+};
+// Gen3 children ordering per parent:
+const gen3Order = {
+    "胡香红": ["胡天乐","胡香红次子"],
+    "胡益苹": ["胡益苹的儿子","胡益苹的女儿"],
+    "胡明锋": ["胡俊豪"],
+    "胡娇娇": ["胡娇娇的儿子","胡娇娇的女儿"],
+    "胡香成": ["胡航琦"],
+    "胡香明": ["胡航煜"],
+    "胡香东": ["胡香东的女儿"],
+    "胡香龙": ["胡香龙的儿子"],
+    "郑明辉": ["郑明辉之子"],
+    "郑亚芬": ["郑亚芬的儿子","郑亚芬的女儿"],
+    "郑明芬": ["郑明芬的儿子","郑明芬的女儿"],
+    "王福军": ["王雅萱"],
+    "章晓露": ["章晓露的女儿"],
+    "袁晓源": ["袁晓源的儿子","袁晓源的女儿"],
+    "袁路香": ["袁路香的长女","袁路香的次女","袁路香的儿子"],
+    "项晓宏": ["项政琪","郑佳琪"],
+};
+// Gen4 children ordering:
+const gen4Order = {
+    "王雅萱": ["王雅萱之女"],
+    "章晓露的女儿": ["章晓露外孙女"],
+    "袁晓源的儿子": ["袁晓源孙女"],
+};
+
+function getOrderedChildren(personId) {
+    // Check each order map
+    if (gen2Order[personId]) return gen2Order[personId];
+    if (gen3Order[personId]) return gen3Order[personId];
+    if (gen4Order[personId]) return gen4Order[personId];
+    // Fallback
+    return childrenOf[personId] || [];
+}
+
+/**
+ * Recursive layout:
+ * 1. calcSubtreeWidth(personId): returns the width needed for this person's subtree
+ * 2. assignPositions(personId, leftX, y): assigns _x, _y to this person and all descendants
+ */
+function calcSubtreeWidth(pid, L) {
+    const { nodeW, spouseGap, sibGap } = L;
+    const spouseId = spouseOf[pid];
+    const isCouple = spouseId && personMap[spouseId] && personMap[spouseId].gen === personMap[pid].gen;
+    const selfW = isCouple ? (2 * nodeW + spouseGap) : nodeW;
+
+    const childIds = getOrderedChildren(pid);
+    if (childIds.length === 0) return selfW;
+
+    let childrenTotalW = 0;
+    childIds.forEach((cid, i) => {
+        childrenTotalW += calcSubtreeWidth(cid, L);
+        if (i > 0) childrenTotalW += sibGap;
+    });
+
+    return Math.max(selfW, childrenTotalW);
+}
+
+function assignPositions(pid, leftX, y, L) {
+    const { nodeW, nodeH, spouseGap, sibGap, vGap } = L;
+    const p = personMap[pid];
+    const spouseId = spouseOf[pid];
+    const isCouple = spouseId && personMap[spouseId] && personMap[spouseId].gen === p.gen;
+    const selfW = isCouple ? (2 * nodeW + spouseGap) : nodeW;
+    const subtreeW = calcSubtreeWidth(pid, L);
+
+    // Position this person (and spouse) centered within subtreeW
+    const selfLeft = leftX + (subtreeW - selfW) / 2;
+    p._x = selfLeft;
+    p._y = y;
+    if (isCouple) {
+        personMap[spouseId]._x = selfLeft + nodeW + spouseGap;
+        personMap[spouseId]._y = y;
+    }
+
+    // Position children
+    const childIds = getOrderedChildren(pid);
+    if (childIds.length === 0) return;
+
+    let childLeft = leftX;
+    const childY = y + vGap;
+    childIds.forEach((cid, i) => {
+        const cw = calcSubtreeWidth(cid, L);
+        assignPositions(cid, childLeft, childY, L);
+        childLeft += cw + sibGap;
+    });
 }
 
 function calcPositions() {
     const L = getLayout();
-    const { nodeW, nodeH, spouseGap, vGap, topMargin } = L;
-    const mobile = L.mobile;
-    const screenW = window.innerWidth;
-    const centerX = screenW / 2;
+    const { nodeW, nodeH, vGap, topMargin, sibGap, groupGap } = L;
 
-    const sibGap = mobile ? 8 : 12;
-    const groupGap = mobile ? 30 : 50;
-    const coupleW = nodeW * 2 + spouseGap;
+    // Gen 0: root couple
+    const gen0W = 2 * nodeW + L.spouseGap;
+    const gen0SubtreeW = calcSubtreeWidth("胡自林", L);
 
-    let huCC, xiangCC; // 胡文贵夫妻中心、项林国夫妻中心
-    let genYs = []; // 各代 Y 坐标（用于画世代线）
+    // For gen0, we need to account for ALL gen1 subtrees
+    // Gen1 families in order: 胡文华, 胡文荣, 胡文贵(couple), 胡文富, 胡文娟, 胡荣娟(couple), 珍娟(couple), 秋娟(couple), 项林国(couple)
+    // But 胡自林 is parent of gen1 blood members. We need to lay out gen1 as children of 胡自林.
+    // The trick: gen1 members who are spouses (not children of 胡自林) are positioned alongside their partner.
 
-    if (mobile) {
-        // ===== 移动端：gen1 分两行 =====
-        const gen0Y = topMargin;
-        const gen1aY = topMargin + vGap;
-        const gen1bY = gen1aY + vGap * 0.55;
-        const gen2Y = gen1bY + vGap;
-        const gen3Y = gen2Y + vGap;
-        genYs = [gen0Y, gen1aY, gen2Y, gen3Y];
+    // Calculate total gen1 width by summing subtrees of each gen1 blood child
+    let totalGen1W = 0;
+    const gen1Groups = [];
 
-        // gen 0: 胡自林+陈琴连
-        placeCouple(centerX, gen0Y, personMap["胡自林"], personMap["陈琴连"], nodeW, spouseGap);
+    // 胡文华 subtree
+    const w1 = calcSubtreeWidth("胡文华", L);
+    gen1Groups.push({ primary: "胡文华", width: w1 });
+    totalGen1W += w1;
 
-        // gen 1a（兄弟行）: 胡文华、胡文荣、[胡文贵+裘金娟]、胡文富
-        const r1W = 3 * nodeW + coupleW + 3 * sibGap;
-        let x = centerX - r1W / 2;
-        personMap["胡文华"]._x = x; personMap["胡文华"]._y = gen1aY; x += nodeW + sibGap;
-        personMap["胡文荣"]._x = x; personMap["胡文荣"]._y = gen1aY; x += nodeW + sibGap;
-        huCC = x + coupleW / 2;
-        placeCouple(huCC, gen1aY, personMap["胡文贵"], personMap["裘金娟"], nodeW, spouseGap);
-        x += coupleW + sibGap;
-        personMap["胡文富"]._x = x; personMap["胡文富"]._y = gen1aY;
+    // 胡文荣 subtree
+    const w2 = calcSubtreeWidth("胡文荣", L);
+    gen1Groups.push({ primary: "胡文荣", width: w2 });
+    totalGen1W += w2;
 
-        // gen 1b（姐妹+项家行）: 胡文娟、胡荣娟、胡珍娟、胡秋娟、[项林国+闻东女]
-        const r2W = 4 * nodeW + coupleW + 3 * sibGap + groupGap;
-        x = centerX - r2W / 2;
-        personMap["胡文娟"]._x = x; personMap["胡文娟"]._y = gen1bY; x += nodeW + sibGap;
-        personMap["胡荣娟"]._x = x; personMap["胡荣娟"]._y = gen1bY; x += nodeW + sibGap;
-        personMap["胡珍娟"]._x = x; personMap["胡珍娟"]._y = gen1bY; x += nodeW + sibGap;
-        personMap["胡秋娟"]._x = x; personMap["胡秋娟"]._y = gen1bY; x += nodeW + groupGap;
-        xiangCC = x + coupleW / 2;
-        placeCouple(xiangCC, gen1bY, personMap["项林国"], personMap["闻东女"], nodeW, spouseGap);
+    // 胡文贵+裘金娟 subtree (couple,裘金娟 positioned alongside)
+    const w3 = calcSubtreeWidth("胡文贵", L);
+    gen1Groups.push({ primary: "胡文贵", width: w3 });
+    totalGen1W += w3;
 
-        // gen 2（父辈）
-        placeCouple(huCC, gen2Y, personMap["胡香成"], personMap["项晓飞"], nodeW, spouseGap);
-        personMap["胡香明"]._x = personMap["胡香成"]._x - nodeW - sibGap;
-        personMap["胡香明"]._y = gen2Y;
-        placeCouple(xiangCC, gen2Y, personMap["项晓宏"], personMap["郑燕萍"], nodeW, spouseGap);
+    // 胡文富 subtree
+    const w4 = calcSubtreeWidth("胡文富", L);
+    gen1Groups.push({ primary: "胡文富", width: w4 });
+    totalGen1W += w4;
 
-        // gen 3（我辈）
-        personMap["胡航煜"]._x = personMap["胡香明"]._x;
-        personMap["胡航煜"]._y = gen3Y;
-        personMap["胡航琦"]._x = huCC - nodeW / 2;
-        personMap["胡航琦"]._y = gen3Y;
-        placeCouple(xiangCC, gen3Y, personMap["项政琪"], personMap["郑佳琪"], nodeW, spouseGap);
+    // Gap between 胡家兄弟 and 胡家姐妹
+    totalGen1W += groupGap;
 
-    } else {
-        // ===== 桌面端：gen1 一行展开 =====
-        const gen0Y = topMargin;
-        const gen1Y = topMargin + vGap;
-        const gen2Y = topMargin + vGap * 2;
-        const gen3Y = topMargin + vGap * 3;
-        genYs = [gen0Y, gen1Y, gen2Y, gen3Y];
+    // 胡文娟 subtree
+    const w5 = calcSubtreeWidth("胡文娟", L);
+    gen1Groups.push({ primary: "胡文娟", width: w5 });
+    totalGen1W += w5;
 
-        // gen 0: 胡自林+陈琴连
-        placeCouple(centerX, gen0Y, personMap["胡自林"], personMap["陈琴连"], nodeW, spouseGap);
+    // 胡荣娟+王国泉 subtree
+    const w6 = calcSubtreeWidth("胡荣娟", L);
+    gen1Groups.push({ primary: "胡荣娟", width: w6 });
+    totalGen1W += w6;
 
-        // gen 1: 所有人一行
-        // 胡文华、胡文荣、[胡文贵+裘金娟]、胡文富、胡文娟、胡荣娟、胡珍娟、胡秋娟、[项林国+闻东女]
-        const gen1TotalW = 7 * nodeW + 2 * coupleW + 7 * sibGap + groupGap;
-        let x = centerX - gen1TotalW / 2;
+    // 胡珍娟+章彩斌 subtree
+    const w7 = calcSubtreeWidth("胡珍娟", L);
+    gen1Groups.push({ primary: "胡珍娟", width: w7 });
+    totalGen1W += w7;
 
-        personMap["胡文华"]._x = x; personMap["胡文华"]._y = gen1Y; x += nodeW + sibGap;
-        personMap["胡文荣"]._x = x; personMap["胡文荣"]._y = gen1Y; x += nodeW + sibGap;
-        huCC = x + coupleW / 2;
-        placeCouple(huCC, gen1Y, personMap["胡文贵"], personMap["裘金娟"], nodeW, spouseGap);
-        x += coupleW + sibGap;
-        personMap["胡文富"]._x = x; personMap["胡文富"]._y = gen1Y; x += nodeW + sibGap;
-        personMap["胡文娟"]._x = x; personMap["胡文娟"]._y = gen1Y; x += nodeW + sibGap;
-        personMap["胡荣娟"]._x = x; personMap["胡荣娟"]._y = gen1Y; x += nodeW + sibGap;
-        personMap["胡珍娟"]._x = x; personMap["胡珍娟"]._y = gen1Y; x += nodeW + sibGap;
-        personMap["胡秋娟"]._x = x; personMap["胡秋娟"]._y = gen1Y; x += nodeW + groupGap;
-        xiangCC = x + coupleW / 2;
-        placeCouple(xiangCC, gen1Y, personMap["项林国"], personMap["闻东女"], nodeW, spouseGap);
+    // 胡秋娟+袁南儿 subtree
+    const w8 = calcSubtreeWidth("胡秋娟", L);
+    gen1Groups.push({ primary: "胡秋娟", width: w8 });
+    totalGen1W += w8;
 
-        // gen 2（父辈）
-        placeCouple(huCC, gen2Y, personMap["胡香成"], personMap["项晓飞"], nodeW, spouseGap);
-        personMap["胡香明"]._x = personMap["胡香成"]._x - nodeW - sibGap;
-        personMap["胡香明"]._y = gen2Y;
-        placeCouple(xiangCC, gen2Y, personMap["项晓宏"], personMap["郑燕萍"], nodeW, spouseGap);
+    // Gap before 项家
+    totalGen1W += groupGap;
 
-        // gen 3（我辈）
-        personMap["胡航煜"]._x = personMap["胡香明"]._x;
-        personMap["胡航煜"]._y = gen3Y;
-        personMap["胡航琦"]._x = huCC - nodeW / 2;
-        personMap["胡航琦"]._y = gen3Y;
-        placeCouple(xiangCC, gen3Y, personMap["项政琪"], personMap["郑佳琪"], nodeW, spouseGap);
+    // 项林国+闻东女 subtree
+    const w9 = calcSubtreeWidth("项林国", L);
+    gen1Groups.push({ primary: "项林国", width: w9 });
+    totalGen1W += w9;
+
+    // Add sibGaps between all gen1 groups
+    totalGen1W += (gen1Groups.length - 1) * sibGap;
+
+    // Now calculate total tree width
+    const totalTreeW = Math.max(gen0SubtreeW, totalGen1W);
+
+    // Center gen0
+    const gen0Left = (totalTreeW - gen0SubtreeW) / 2;
+    const gen0Y = topMargin;
+    personMap["胡自林"]._x = gen0Left + (gen0SubtreeW - 2 * nodeW - L.spouseGap) / 2;
+    personMap["胡自林"]._y = gen0Y;
+    personMap["陈琴连"]._x = personMap["胡自林"]._x + nodeW + L.spouseGap;
+    personMap["陈琴连"]._y = gen0Y;
+
+    // Position gen1 groups
+    const gen1Y = topMargin + vGap;
+    let gen1Left = (totalTreeW - totalGen1W) / 2;
+
+    gen1Groups.forEach((grp, i) => {
+        const pid = grp.primary;
+        assignPositions(pid, gen1Left, gen1Y, L);
+        gen1Left += grp.width + sibGap;
+
+        // Add groupGap after 胡文富(gen1Groups[3]) and after 胡秋娟(gen1Groups[7])
+        if (i === 3 || i === 7) {
+            gen1Left += groupGap - sibGap; // sibGap already added, adjust
+        }
+    });
+
+    // Calculate genYs for generation labels
+    const genYs = [gen0Y];
+    // Find actual Y for each generation
+    const genSet = new Set();
+    people.forEach(p => {
+        if (p._y !== undefined && !genSet.has(p.gen)) {
+            genSet.add(p.gen);
+        }
+    });
+    for (let g = 0; g <= 4; g++) {
+        const p = people.find(pp => pp.gen === g && pp._y !== undefined);
+        if (p) genYs[g] = p._y;
     }
 
-    return { ...L, genYs };
+    return { ...L, genYs, totalTreeW };
 }
 
 // ============================================================
@@ -255,10 +421,13 @@ const svg = document.getElementById("tree");
 
 function render() {
     const result = calcPositions();
-    const { nodeW, nodeH, vGap, topMargin, genYs } = result;
+    const { nodeW, nodeH, vGap, topMargin, genYs, mobile } = result;
 
-    const allX = people.map(p => p._x);
-    const allY = people.map(p => p._y);
+    // Calculate bounds
+    const allX = people.filter(p => p._x !== undefined).map(p => p._x);
+    const allY = people.filter(p => p._y !== undefined).map(p => p._y);
+    if (allX.length === 0) return;
+
     const minX = Math.min(...allX) - 40;
     const maxX = Math.max(...allX) + nodeW + 40;
     const maxY = Math.max(...allY) + nodeH + 60;
@@ -267,8 +436,8 @@ function render() {
 
     const screenW = window.innerWidth;
     let currentScale = 1;
-    if (result.mobile && svgW > screenW) {
-        currentScale = screenW / svgW * 0.92;
+    if (svgW > screenW) {
+        currentScale = screenW / svgW * 0.95;
     }
 
     svg.setAttribute("width", svgW * currentScale);
@@ -277,8 +446,9 @@ function render() {
     svg.innerHTML = "";
 
     // --- 世代分隔线 ---
-    const genLabels = ["曾祖辈", "祖辈", "父辈", "我辈"];
+    const genLabels = ["曾祖辈", "祖辈", "父辈", "我辈", "子侄辈"];
     genYs.forEach((y, i) => {
+        if (y === undefined) return;
         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", minX + 10); line.setAttribute("x2", maxX - 10);
         line.setAttribute("y1", y); line.setAttribute("y2", y);
@@ -302,7 +472,7 @@ function render() {
     // --- 配偶连线 ---
     spouses.forEach(s => {
         const a = personMap[s.a], b = personMap[s.b];
-        if (!a || !b) return;
+        if (!a || !b || a._x === undefined || b._x === undefined) return;
         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", a._x + nodeW); line.setAttribute("y1", a._y + nodeH / 2);
         line.setAttribute("x2", b._x); line.setAttribute("y2", b._y + nodeH / 2);
@@ -319,18 +489,21 @@ function render() {
 
     // --- 亲子连线 ---
     people.forEach(p => {
-        if (!p.parentId) return;
+        if (!p.parentId || p._x === undefined) return;
         const parent = personMap[p.parentId];
-        if (!parent) return;
-        const spousePair = spouses.find(s => s.a === p.parentId || s.b === p.parentId);
+        if (!parent || parent._x === undefined) return;
+
+        // Find if parent has a spouse at same generation
+        const spouseId = spouseOf[p.parentId];
         let parentCenterX = parent._x + nodeW / 2;
         let coupleIds = [p.parentId];
-        if (spousePair) {
-            const spouseId = spousePair.a === p.parentId ? spousePair.b : spousePair.a;
+
+        if (spouseId && personMap[spouseId] && personMap[spouseId].gen === parent.gen && personMap[spouseId]._x !== undefined) {
             const spouse = personMap[spouseId];
             parentCenterX = (parent._x + spouse._x) / 2 + nodeW / 2;
             coupleIds = [p.parentId, spouseId];
         }
+
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", curvePath(parentCenterX, parent._y + nodeH, p._x + nodeW / 2, p._y));
         path.setAttribute("class", "link-parent");
@@ -340,6 +513,7 @@ function render() {
 
     // --- 节点 ---
     people.forEach(p => {
+        if (p._x === undefined) return;
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("class", "node-group");
         g.setAttribute("transform", `translate(${p._x}, ${p._y})`);
@@ -377,12 +551,14 @@ function render() {
 
         const name = document.createElementNS("http://www.w3.org/2000/svg", "text");
         name.setAttribute("x", nodeW / 2);
-        name.setAttribute("y", result.mobile ? nodeH / 2 : nodeH / 2 - 6);
+        name.setAttribute("y", mobile ? nodeH / 2 : nodeH / 2 - 6);
         name.setAttribute("class", "node-name"); name.setAttribute("fill", textColor);
-        name.textContent = p.id;
+        // Truncate long names for display
+        const displayName = p.id.length > 7 ? p.id.slice(0, 7) : p.id;
+        name.textContent = displayName;
         g.appendChild(name);
 
-        if (!result.mobile) {
+        if (!mobile) {
             const gender = document.createElementNS("http://www.w3.org/2000/svg", "text");
             gender.setAttribute("x", nodeW / 2); gender.setAttribute("y", nodeH / 2 + 14);
             gender.setAttribute("class", "node-gender"); gender.setAttribute("fill", "#999");
@@ -419,12 +595,11 @@ function render() {
         if (me && me.parentId) {
             const par = personMap[me.parentId];
             if (par) rels.push({ other: me.parentId, rel: par.gender === "m" ? "父亲" : "母亲" });
-            const parentSpouse = spouses.find(s => s.a === me.parentId || s.b === me.parentId);
-            if (parentSpouse) {
-                const otherId = parentSpouse.a === me.parentId ? parentSpouse.b : parentSpouse.a;
-                const op = personMap[otherId];
-                if (op && op.id !== nodeId && !rels.find(r => r.other === otherId)) {
-                    rels.push({ other: otherId, rel: op.gender === "m" ? "父亲" : "母亲" });
+            const parentSpouse = spouseOf[me.parentId];
+            if (parentSpouse && personMap[parentSpouse] && personMap[parentSpouse].gen === par.gen) {
+                if (parentSpouse !== nodeId && !rels.find(r => r.other === parentSpouse)) {
+                    const op = personMap[parentSpouse];
+                    rels.push({ other: parentSpouse, rel: op.gender === "m" ? "父亲" : "母亲" });
                 }
             }
         }
