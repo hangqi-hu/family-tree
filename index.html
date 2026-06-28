@@ -79,28 +79,39 @@
 <div class="footer">💡 手机双指缩放 · 点击人物查看详情</div>
 <script>
 // ============================================================
-// 胡氏家族数据
+// 胡氏家族数据（4代）
 // ============================================================
 const people = [
+    // 第零代（曾祖辈）
+    { id: "胡自林", gen: 0, gender: "m", desc: "曾祖父" },
+    { id: "陈琴连", gen: 0, gender: "f", desc: "曾祖母" },
     // 第一代（祖辈）
-    { id: "胡文贵", gen: 0, gender: "m", desc: "祖父" },
-    { id: "裘金娟", gen: 0, gender: "f", desc: "祖母" },
-    { id: "项林国", gen: 0, gender: "m", desc: "外祖父" },
-    { id: "闻东女", gen: 0, gender: "f", desc: "外祖母" },
+    { id: "胡文华", gen: 1, gender: "m", desc: "祖父长兄", parentId: "胡自林" },
+    { id: "胡文荣", gen: 1, gender: "m", desc: "祖父次兄", parentId: "胡自林" },
+    { id: "胡文贵", gen: 1, gender: "m", desc: "祖父·老三", parentId: "胡自林" },
+    { id: "裘金娟", gen: 1, gender: "f", desc: "祖母" },
+    { id: "胡文富", gen: 1, gender: "m", desc: "祖父四弟", parentId: "胡自林" },
+    { id: "胡文娟", gen: 1, gender: "f", desc: "祖父大姐", parentId: "胡自林" },
+    { id: "胡荣娟", gen: 1, gender: "f", desc: "祖父二姐", parentId: "胡自林" },
+    { id: "胡珍娟", gen: 1, gender: "f", desc: "祖父三姐", parentId: "胡自林" },
+    { id: "胡秋娟", gen: 1, gender: "f", desc: "祖父四姐", parentId: "胡自林" },
+    { id: "项林国", gen: 1, gender: "m", desc: "外祖父" },
+    { id: "闻东女", gen: 1, gender: "f", desc: "外祖母" },
     // 第二代（父辈）
-    { id: "胡香成", gen: 1, gender: "m", desc: "父亲·长子", parentId: "胡文贵" },
-    { id: "项晓飞", gen: 1, gender: "f", desc: "母亲", parentId: "项林国" },
-    { id: "胡香明", gen: 1, gender: "m", desc: "叔叔·次子", parentId: "胡文贵" },
-    { id: "项晓宏", gen: 1, gender: "m", desc: "舅舅", parentId: "项林国" },
-    { id: "郑燕萍", gen: 1, gender: "f", desc: "舅妈", parentId: null },
+    { id: "胡香成", gen: 2, gender: "m", desc: "父亲·长子", parentId: "胡文贵" },
+    { id: "项晓飞", gen: 2, gender: "f", desc: "母亲", parentId: "项林国" },
+    { id: "胡香明", gen: 2, gender: "m", desc: "叔叔·次子", parentId: "胡文贵" },
+    { id: "项晓宏", gen: 2, gender: "m", desc: "舅舅", parentId: "项林国" },
+    { id: "郑燕萍", gen: 2, gender: "f", desc: "舅妈" },
     // 第三代（我辈）
-    { id: "胡航琦", gen: 2, gender: "m", desc: "我·胡香成之子", parentId: "胡香成", isMe: true },
-    { id: "胡航煜", gen: 2, gender: "m", desc: "堂弟·胡香明之子", parentId: "胡香明" },
-    { id: "项政琪", gen: 2, gender: "m", desc: "表弟·项晓宏长子", parentId: "项晓宏" },
-    { id: "郑佳琪", gen: 2, gender: "m", desc: "表弟·项晓宏次子", parentId: "项晓宏" },
+    { id: "胡航琦", gen: 3, gender: "m", desc: "我·胡香成之子", parentId: "胡香成", isMe: true },
+    { id: "胡航煜", gen: 3, gender: "m", desc: "堂弟·胡香明之子", parentId: "胡香明" },
+    { id: "项政琪", gen: 3, gender: "m", desc: "表弟·项晓宏长子", parentId: "项晓宏" },
+    { id: "郑佳琪", gen: 3, gender: "m", desc: "表弟·项晓宏次子", parentId: "项晓宏" },
 ];
 
 const spouses = [
+    { a: "胡自林", b: "陈琴连" },
     { a: "胡文贵", b: "裘金娟" },
     { a: "项林国", b: "闻东女" },
     { a: "胡香成", b: "项晓飞" },
@@ -122,8 +133,7 @@ function getLayout() {
     const spouseGap = mobile ? 10 : 18;
     const vGap = mobile ? 110 : 170;
     const topMargin = mobile ? 50 : 75;
-    const coupleSep = mobile ? 200 : 300;
-    return { mobile, nodeW, nodeH, spouseGap, vGap, topMargin, coupleSep };
+    return { mobile, nodeW, nodeH, spouseGap, vGap, topMargin };
 }
 
 function placeCouple(centerX, y, leftPerson, rightPerson, nodeW, spouseGap) {
@@ -135,39 +145,107 @@ function placeCouple(centerX, y, leftPerson, rightPerson, nodeW, spouseGap) {
 
 function calcPositions() {
     const L = getLayout();
-    const { nodeW, nodeH, spouseGap, vGap, topMargin, coupleSep } = L;
+    const { nodeW, nodeH, spouseGap, vGap, topMargin } = L;
+    const mobile = L.mobile;
     const screenW = window.innerWidth;
     const centerX = screenW / 2;
 
-    // === 第一代（祖辈）===
-    const gen0Y = topMargin;
-    const c1x = centerX - coupleSep; // 胡文贵+裘金娟
-    const c2x = centerX + coupleSep; // 项林国+闻东女
-    placeCouple(c1x, gen0Y, personMap["胡文贵"], personMap["裘金娟"], nodeW, spouseGap);
-    placeCouple(c2x, gen0Y, personMap["项林国"], personMap["闻东女"], nodeW, spouseGap);
+    const sibGap = mobile ? 8 : 12;
+    const groupGap = mobile ? 30 : 50;
+    const coupleW = nodeW * 2 + spouseGap;
 
-    // === 第二代（父辈）===
-    const gen1Y = topMargin + vGap;
-    // 胡香明：在胡文贵夫妻正下方
-    personMap["胡香明"]._x = c1x - nodeW / 2;
-    personMap["胡香明"]._y = gen1Y;
-    // 胡香成+项晓飞：居中
-    placeCouple(centerX, gen1Y, personMap["胡香成"], personMap["项晓飞"], nodeW, spouseGap);
-    // 项晓宏+郑燕萍：在项林国夫妻正下方
-    placeCouple(c2x, gen1Y, personMap["项晓宏"], personMap["郑燕萍"], nodeW, spouseGap);
+    let huCC, xiangCC; // 胡文贵夫妻中心、项林国夫妻中心
+    let genYs = []; // 各代 Y 坐标（用于画世代线）
 
-    // === 第三代（我辈）===
-    const gen2Y = topMargin + vGap * 2;
-    // 胡航煜：在胡香明正下方
-    personMap["胡航煜"]._x = c1x - nodeW / 2;
-    personMap["胡航煜"]._y = gen2Y;
-    // 胡航琦：在胡香成+项晓飞正下方
-    personMap["胡航琦"]._x = centerX - nodeW / 2;
-    personMap["胡航琦"]._y = gen2Y;
-    // 项政琪+郑佳琪：在项晓宏+郑燕萍正下方（兄弟并排）
-    placeCouple(c2x, gen2Y, personMap["项政琪"], personMap["郑佳琪"], nodeW, spouseGap);
+    if (mobile) {
+        // ===== 移动端：gen1 分两行 =====
+        const gen0Y = topMargin;
+        const gen1aY = topMargin + vGap;
+        const gen1bY = gen1aY + vGap * 0.55;
+        const gen2Y = gen1bY + vGap;
+        const gen3Y = gen2Y + vGap;
+        genYs = [gen0Y, gen1aY, gen2Y, gen3Y];
 
-    return L;
+        // gen 0: 胡自林+陈琴连
+        placeCouple(centerX, gen0Y, personMap["胡自林"], personMap["陈琴连"], nodeW, spouseGap);
+
+        // gen 1a（兄弟行）: 胡文华、胡文荣、[胡文贵+裘金娟]、胡文富
+        const r1W = 3 * nodeW + coupleW + 3 * sibGap;
+        let x = centerX - r1W / 2;
+        personMap["胡文华"]._x = x; personMap["胡文华"]._y = gen1aY; x += nodeW + sibGap;
+        personMap["胡文荣"]._x = x; personMap["胡文荣"]._y = gen1aY; x += nodeW + sibGap;
+        huCC = x + coupleW / 2;
+        placeCouple(huCC, gen1aY, personMap["胡文贵"], personMap["裘金娟"], nodeW, spouseGap);
+        x += coupleW + sibGap;
+        personMap["胡文富"]._x = x; personMap["胡文富"]._y = gen1aY;
+
+        // gen 1b（姐妹+项家行）: 胡文娟、胡荣娟、胡珍娟、胡秋娟、[项林国+闻东女]
+        const r2W = 4 * nodeW + coupleW + 3 * sibGap + groupGap;
+        x = centerX - r2W / 2;
+        personMap["胡文娟"]._x = x; personMap["胡文娟"]._y = gen1bY; x += nodeW + sibGap;
+        personMap["胡荣娟"]._x = x; personMap["胡荣娟"]._y = gen1bY; x += nodeW + sibGap;
+        personMap["胡珍娟"]._x = x; personMap["胡珍娟"]._y = gen1bY; x += nodeW + sibGap;
+        personMap["胡秋娟"]._x = x; personMap["胡秋娟"]._y = gen1bY; x += nodeW + groupGap;
+        xiangCC = x + coupleW / 2;
+        placeCouple(xiangCC, gen1bY, personMap["项林国"], personMap["闻东女"], nodeW, spouseGap);
+
+        // gen 2（父辈）
+        placeCouple(huCC, gen2Y, personMap["胡香成"], personMap["项晓飞"], nodeW, spouseGap);
+        personMap["胡香明"]._x = personMap["胡香成"]._x - nodeW - sibGap;
+        personMap["胡香明"]._y = gen2Y;
+        placeCouple(xiangCC, gen2Y, personMap["项晓宏"], personMap["郑燕萍"], nodeW, spouseGap);
+
+        // gen 3（我辈）
+        personMap["胡航煜"]._x = personMap["胡香明"]._x;
+        personMap["胡航煜"]._y = gen3Y;
+        personMap["胡航琦"]._x = huCC - nodeW / 2;
+        personMap["胡航琦"]._y = gen3Y;
+        placeCouple(xiangCC, gen3Y, personMap["项政琪"], personMap["郑佳琪"], nodeW, spouseGap);
+
+    } else {
+        // ===== 桌面端：gen1 一行展开 =====
+        const gen0Y = topMargin;
+        const gen1Y = topMargin + vGap;
+        const gen2Y = topMargin + vGap * 2;
+        const gen3Y = topMargin + vGap * 3;
+        genYs = [gen0Y, gen1Y, gen2Y, gen3Y];
+
+        // gen 0: 胡自林+陈琴连
+        placeCouple(centerX, gen0Y, personMap["胡自林"], personMap["陈琴连"], nodeW, spouseGap);
+
+        // gen 1: 所有人一行
+        // 胡文华、胡文荣、[胡文贵+裘金娟]、胡文富、胡文娟、胡荣娟、胡珍娟、胡秋娟、[项林国+闻东女]
+        const gen1TotalW = 7 * nodeW + 2 * coupleW + 7 * sibGap + groupGap;
+        let x = centerX - gen1TotalW / 2;
+
+        personMap["胡文华"]._x = x; personMap["胡文华"]._y = gen1Y; x += nodeW + sibGap;
+        personMap["胡文荣"]._x = x; personMap["胡文荣"]._y = gen1Y; x += nodeW + sibGap;
+        huCC = x + coupleW / 2;
+        placeCouple(huCC, gen1Y, personMap["胡文贵"], personMap["裘金娟"], nodeW, spouseGap);
+        x += coupleW + sibGap;
+        personMap["胡文富"]._x = x; personMap["胡文富"]._y = gen1Y; x += nodeW + sibGap;
+        personMap["胡文娟"]._x = x; personMap["胡文娟"]._y = gen1Y; x += nodeW + sibGap;
+        personMap["胡荣娟"]._x = x; personMap["胡荣娟"]._y = gen1Y; x += nodeW + sibGap;
+        personMap["胡珍娟"]._x = x; personMap["胡珍娟"]._y = gen1Y; x += nodeW + sibGap;
+        personMap["胡秋娟"]._x = x; personMap["胡秋娟"]._y = gen1Y; x += nodeW + groupGap;
+        xiangCC = x + coupleW / 2;
+        placeCouple(xiangCC, gen1Y, personMap["项林国"], personMap["闻东女"], nodeW, spouseGap);
+
+        // gen 2（父辈）
+        placeCouple(huCC, gen2Y, personMap["胡香成"], personMap["项晓飞"], nodeW, spouseGap);
+        personMap["胡香明"]._x = personMap["胡香成"]._x - nodeW - sibGap;
+        personMap["胡香明"]._y = gen2Y;
+        placeCouple(xiangCC, gen2Y, personMap["项晓宏"], personMap["郑燕萍"], nodeW, spouseGap);
+
+        // gen 3（我辈）
+        personMap["胡航煜"]._x = personMap["胡香明"]._x;
+        personMap["胡航煜"]._y = gen3Y;
+        personMap["胡航琦"]._x = huCC - nodeW / 2;
+        personMap["胡航琦"]._y = gen3Y;
+        placeCouple(xiangCC, gen3Y, personMap["项政琪"], personMap["郑佳琪"], nodeW, spouseGap);
+    }
+
+    return { ...L, genYs };
 }
 
 // ============================================================
@@ -176,8 +254,8 @@ function calcPositions() {
 const svg = document.getElementById("tree");
 
 function render() {
-    const L = calcPositions();
-    const { nodeW, nodeH, vGap, topMargin } = L;
+    const result = calcPositions();
+    const { nodeW, nodeH, vGap, topMargin, genYs } = result;
 
     const allX = people.map(p => p._x);
     const allY = people.map(p => p._y);
@@ -189,7 +267,7 @@ function render() {
 
     const screenW = window.innerWidth;
     let currentScale = 1;
-    if (L.mobile && svgW > screenW) {
+    if (result.mobile && svgW > screenW) {
         currentScale = screenW / svgW * 0.92;
     }
 
@@ -199,9 +277,8 @@ function render() {
     svg.innerHTML = "";
 
     // --- 世代分隔线 ---
-    const genLabels = ["祖辈", "父辈", "我辈"];
-    for (let g = 0; g <= 2; g++) {
-        const y = topMargin + g * vGap;
+    const genLabels = ["曾祖辈", "祖辈", "父辈", "我辈"];
+    genYs.forEach((y, i) => {
         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", minX + 10); line.setAttribute("x2", maxX - 10);
         line.setAttribute("y1", y); line.setAttribute("y2", y);
@@ -210,9 +287,9 @@ function render() {
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("x", minX + 10); text.setAttribute("y", y - 8);
         text.setAttribute("class", "gen-label");
-        text.textContent = genLabels[g];
+        text.textContent = genLabels[i];
         svg.appendChild(text);
-    }
+    });
 
     function curvePath(x1, y1, x2, y2) {
         const midY = (y1 + y2) / 2;
@@ -300,12 +377,12 @@ function render() {
 
         const name = document.createElementNS("http://www.w3.org/2000/svg", "text");
         name.setAttribute("x", nodeW / 2);
-        name.setAttribute("y", L.mobile ? nodeH / 2 : nodeH / 2 - 6);
+        name.setAttribute("y", result.mobile ? nodeH / 2 : nodeH / 2 - 6);
         name.setAttribute("class", "node-name"); name.setAttribute("fill", textColor);
         name.textContent = p.id;
         g.appendChild(name);
 
-        if (!L.mobile) {
+        if (!result.mobile) {
             const gender = document.createElementNS("http://www.w3.org/2000/svg", "text");
             gender.setAttribute("x", nodeW / 2); gender.setAttribute("y", nodeH / 2 + 14);
             gender.setAttribute("class", "node-gender"); gender.setAttribute("fill", "#999");
