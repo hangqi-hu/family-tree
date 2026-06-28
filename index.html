@@ -616,16 +616,26 @@ function render() {
 }
 
 function updateTransform() {
+    // 使用 center center 作为缩放基准点
     svgWrapper.style.transform = `scale(${currentScale})`;
-    svgWrapper.style.transformOrigin = "top left";
-    // Update container size to match scaled content
+    svgWrapper.style.transformOrigin = "center center";
+    
+    // 更新容器尺寸以匹配缩放后的内容
     const scaledW = baseSvgW * currentScale;
     const scaledH = baseSvgH * currentScale;
+    
+    // 设置最小尺寸，确保可以滚动
     treeContainer.style.minWidth = scaledW + "px";
     treeContainer.style.minHeight = scaledH + "px";
-    // Ensure proper scrolling
-    treeContainer.scrollLeft = 0;
-    treeContainer.scrollTop = 0;
+    
+    // 确保内容在容器内居中
+    const containerW = treeContainer.clientWidth;
+    const containerH = treeContainer.clientHeight;
+    const offsetX = Math.max(0, (containerW - scaledW) / 2);
+    const offsetY = Math.max(0, (containerH - scaledH) / 2);
+    
+    svgWrapper.style.marginLeft = offsetX + "px";
+    svgWrapper.style.marginTop = offsetY + "px";
 }
 
 function updateZoomDisplay() {
@@ -693,4 +703,10 @@ svg.addEventListener("touchmove", (e) => {
         const scale = dist / lastTouchDist;
         currentScale = Math.max(0.3, Math.min(5, lastScale * scale));
         updateTransform();
-  
+        updateZoomDisplay();
+    }
+}, { passive: false });
+svg.addEventListener("touchend", () => { lastTouchDist = 0; });
+</script>
+</body>
+</html>
